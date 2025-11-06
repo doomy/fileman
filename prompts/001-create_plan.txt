@@ -1,0 +1,4 @@
+I want to create a micro-web application for managing uploaded files in a specified location in similar vein to CKfinder. 
+The backend should be a REST api written in PHP.
+I will let you choose the frontend stack based on what is most suited for the current task, well enough notorious and future-proof.
+At this point, do not generate any code. Just plan the creation, separate it into meaningful steps to cand write it to a comprehensible document in <app_root>/plan.MD. We will continue from there.   

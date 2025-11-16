@@ -1,0 +1,69 @@
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+
+# Backend (PHP)
+backend/vendor/
+backend/composer.lock
+backend/storage/uploads/*
+!backend/storage/uploads/.gitkeep
+backend/storage/logs/*
+!backend/storage/logs/.gitkeep
+backend/.phpunit.result.cache
+backend/.php_cs.cache
+backend/.php-cs-fixer.cache
+
+# Frontend (Node/React)
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/.cache/
+frontend/coverage/
+frontend/*.tsbuildinfo
+
+# Docker
+docker/data/
+*.pid
+*.sock
+
+# Backup Files
+*.bak
+*.tmp
+*.temp
+
+# Test Coverage
+coverage/
+.nyc_output/
+
+# Package Manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

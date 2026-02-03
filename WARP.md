@@ -6,7 +6,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 A micro-web application for managing uploaded files, similar to CKFinder. **Monorepo** architecture with backend and frontend in a single repository.
 
-- **Backend:** PHP 8.4+ REST API using Restopus framework (github.com/doomy/restopus) built on Nette
+- **Backend:** PHP 8.4+ REST API using Restopus framework (https://github.com/doomy/restopus) built on Nette
 - **Frontend:** React 18+ with TypeScript, Vite, TanStack Query
 - **Infrastructure:** Docker with Nginx reverse proxy
 

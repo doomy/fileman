@@ -5,7 +5,7 @@ A micro-web application for managing uploaded files in a specified location, sim
 ## 🏗️ Architecture
 
 **Monorepo** structure with backend and frontend in a single repository:
-- **Backend:** PHP 8.4+ REST API (Slim Framework or Laravel API-only)
+- **Backend:** PHP 8.4+ REST API using Restopus framework (github.com/doomy/restopus) built on Nette
 - **Frontend:** React 18+ with TypeScript, Vite, and TanStack Query
 - **Infrastructure:** Docker with Nginx reverse proxy
 
@@ -73,10 +73,10 @@ npm run dev
 
 ```
 fileman/                          # Root monorepo
-├── backend/                      # PHP 8.4+ REST API
-│   ├── public/                   # Entry point
-│   ├── src/                      # Application code
-│   ├── config/                   # Configuration files
+├── backend/                      # PHP 8.4+ REST API with Restopus
+│   ├── www/                      # Entry point
+│   ├── src/                      # Application code (Presenters, Services, etc.)
+│   ├── config/                   # Nette configuration files (config.neon)
 │   ├── storage/uploads/          # File storage
 │   └── tests/                    # PHPUnit tests
 ├── frontend/                     # React + TypeScript SPA
@@ -176,10 +176,11 @@ This application implements several security measures:
 
 ### Backend
 - PHP 8.4+ (property hooks, asymmetric visibility, JIT)
-- Slim Framework or Laravel (API-only)
+- Restopus framework (github.com/doomy/restopus) - attribute-based REST API
+- Nette Framework (foundation for Restopus)
 - Composer
 - PHPUnit
-- JWT or session-based authentication
+- JWT or session-based authentication via Restopus #[Authenticated] attribute
 
 ### Frontend
 - React 18+

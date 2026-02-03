@@ -13,9 +13,10 @@ A micro-web application for managing uploaded files in a specified location, sim
 
 ### Backend
 - **PHP 8.4+** - Latest PHP with property hooks, asymmetric visibility, and performance improvements
-- **Slim Framework** or **Laravel (API-only)** - Lightweight REST API framework
+- **Restopus** (github.com/doomy/restopus) - Custom REST API framework built on Nette, supports attribute-based routing, HTTP method declarations, request body validation, and authentication
+- **Nette Framework** - Foundation for Restopus (presenters & routing)
 - **Composer** - Dependency management
-- **JWT** or session-based authentication - Security layer
+- **JWT** or session-based authentication - Security layer via Restopus #[Authenticated] attribute
 - **PHP-FIG standards** - PSR-4 autoloading, PSR-7 HTTP messages
 
 ### Frontend
@@ -85,20 +86,22 @@ A micro-web application for managing uploaded files in a specified location, sim
 
 **1.2 Backend Setup**
 - Initialize PHP project with Composer
-- Set up chosen framework (Slim or Laravel)
+- Add `doomy/restopus` dependency
+- Set up Nette configuration (config.neon) with Restopus router factory
 - Configure autoloading (PSR-4)
 - Create directory structure:
   ```
   backend/
-  ├── public/
+  ├── www/
   │   └── index.php
   ├── src/
-  │   ├── Controllers/
+  │   ├── Presenter/              # REST presenters (instead of Controllers)
   │   ├── Services/
+  │   ├── RequestBody/            # Request body validation classes
   │   ├── Models/
-  │   ├── Middleware/
   │   └── Utils/
   ├── config/
+  │   └── config.neon             # Nette configuration
   ├── storage/
   │   └── uploads/
   ├── tests/
@@ -143,11 +146,12 @@ A micro-web application for managing uploaded files in a specified location, sim
 ### Phase 2: Backend API Development (Week 2-3)
 
 **2.1 Core API Structure**
-- Define RESTful API endpoints schema
-- Set up routing
-- Implement CORS middleware
-- Add error handling middleware
-- Create response formatters (consistent JSON structure)
+- Define RESTful API endpoints using Restopus attributes (#[Route], #[HttpMethod])
+- Configure Restopus router factory in config.neon
+- Create AbstractRestPresenter base class extending Restopus
+- Implement CORS handling (Nette middleware or Restopus extension)
+- Add error handling (Nette error presenter or Restopus extension)
+- Use Restopus Response class for consistent JSON responses
 
 **2.2 File System Service Layer**
 - Create FileSystemService class
@@ -180,8 +184,8 @@ A micro-web application for managing uploaded files in a specified location, sim
 **2.6 Security Implementation**
 - Add file type validation
 - Implement file size restrictions
-- Add authentication middleware (JWT or session)
-- Create user validation rules
+- Use Restopus #[Authenticated] attribute for protected endpoints
+- Create request body validation classes using #[RequestBody] attribute
 - Sanitize file names
 - Prevent directory traversal attacks
 
@@ -351,24 +355,25 @@ fileman/                          # Root monorepo
 ├── docker-compose.yml            # Development orchestration
 ├── docker-compose.prod.yml       # Production orchestration
 │
-├── backend/                      # PHP 8.4+ REST API
-│   ├── public/
+├── backend/                      # PHP 8.4+ REST API with Restopus
+│   ├── www/
 │   │   └── index.php             # API entry point
 │   ├── src/
-│   │   ├── Controllers/
-│   │   │   ├── FileController.php
-│   │   │   └── DirectoryController.php
+│   │   ├── Presenter/            # REST presenters (Restopus pattern)
+│   │   │   ├── FilePresenter.php
+│   │   │   └── DirectoryPresenter.php
+│   │   ├── RequestBody/          # Request body validation classes
+│   │   │   ├── FileUploadRequestBody.php
+│   │   │   ├── FileRenameRequestBody.php
+│   │   │   └── DirectoryCreateRequestBody.php
 │   │   ├── Services/
 │   │   │   ├── FileSystemService.php
 │   │   │   └── ValidationService.php
-│   │   ├── Middleware/
-│   │   │   ├── AuthMiddleware.php
-│   │   │   └── CorsMiddleware.php
+│   │   ├── Models/
 │   │   └── Utils/
-│   │       ├── ResponseFormatter.php
 │   │       └── PathValidator.php
 │   ├── config/
-│   │   └── settings.php
+│   │   └── config.neon           # Nette configuration
 │   ├── storage/
 │   │   └── uploads/              # File storage location
 │   ├── tests/

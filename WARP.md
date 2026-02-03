@@ -6,7 +6,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 A micro-web application for managing uploaded files, similar to CKFinder. **Monorepo** architecture with backend and frontend in a single repository.
 
-- **Backend:** PHP 8.4+ REST API (Slim Framework or Laravel API-only)
+- **Backend:** PHP 8.4+ REST API using Restopus framework (https://github.com/doomy/restopus) built on Nette
 - **Frontend:** React 18+ with TypeScript, Vite, TanStack Query
 - **Infrastructure:** Docker with Nginx reverse proxy
 
@@ -14,13 +14,15 @@ A micro-web application for managing uploaded files, similar to CKFinder. **Mono
 
 ```
 fileman/                          # Root monorepo
-├── backend/                      # PHP 8.4+ REST API
-│   ├── public/index.php          # API entry point
+├── backend/                      # PHP 8.4+ REST API with Restopus
+│   ├── www/index.php             # API entry point
 │   ├── src/
-│   │   ├── Controllers/          # FileController, DirectoryController
+│   │   ├── Presenter/            # FilePresenter, DirectoryPresenter (Restopus pattern)
+│   │   ├── RequestBody/          # Request body validation classes
 │   │   ├── Services/             # FileSystemService, ValidationService
-│   │   ├── Middleware/           # AuthMiddleware, CorsMiddleware
-│   │   └── Utils/                # ResponseFormatter, PathValidator
+│   │   ├── Models/
+│   │   └── Utils/                # PathValidator
+│   ├── config/config.neon        # Nette configuration
 │   ├── storage/uploads/          # File storage location
 │   └── tests/
 ├── frontend/                     # React + TypeScript SPA
@@ -53,10 +55,10 @@ docker-compose up --build
 docker-compose down
 ```
 
-### Backend (PHP)
+### Backend (PHP with Restopus)
 
 ```bash
-# Install dependencies
+# Install dependencies (includes doomy/restopus)
 cd backend && composer install
 
 # Run PHPUnit tests
@@ -67,8 +69,8 @@ cd backend && ./vendor/bin/phpunit
 # Run single test file
 cd backend && ./vendor/bin/phpunit tests/Unit/FileSystemServiceTest.php
 
-# Check code standards (PHP_CodeSniffer)
-cd backend && composer run-script phpcs
+# Check code standards (ECS - Easy Coding Standard)
+cd backend && composer run-script ecs
 ```
 
 ### Frontend (React + TypeScript)
@@ -103,16 +105,20 @@ cd frontend && npm run format
 
 ### Backend Architecture
 
-**RESTful API Design:**
+**RESTful API Design with Restopus:**
 - All endpoints under `/api/` prefix
-- Controllers handle HTTP layer, delegate to Services
+- Presenters (not Controllers) handle HTTP layer using Restopus attributes
+- Attribute-based routing: #[Route('/path')], #[HttpMethod(HttpRequestMethod::POST)]
+- Authentication via #[Authenticated(userEntityClass: User::class)] attribute
+- Request validation via #[RequestBody(RequestBodyClass::class)] attribute
 - Services contain business logic and file system operations
-- Middleware chain: CORS → Authentication → Request handling
+- Nette framework provides foundation (DI container, routing)
 
 **Security-Critical Components:**
 - **PathValidator:** Prevents directory traversal attacks using `realpath()` validation against base directory
 - **ValidationService:** File type whitelist/blacklist, size limits, MIME type verification
-- **AuthMiddleware:** JWT or session-based authentication layer
+- **Restopus #[Authenticated]:** Built-in authentication attribute for protected endpoints
+- **Request Body Classes:** Type-safe request validation using #[RequestBody] attribute
 
 **File System Service:**
 - Central service for all file operations

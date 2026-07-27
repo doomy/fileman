@@ -509,4 +509,35 @@ After approval of this plan:
 
 ---
 
+## Progress Log
+
+> Kept up to date as work lands, so future sessions (human or AI) know what already exists before re-deriving it. Newest entry on top.
+
+### 2026-07-27 — Backend Docker stack scaffolded and verified working
+
+Completed out of **Phase 1.2 (Backend Setup)** and **Phase 1.4 (Docker Configuration)**:
+
+- `backend/` skeleton created: `composer.json`, `config/config.neon`, `www/index.php`, `src/Presenter/`, `storage/uploads/`, `storage/logs/`, `tests/{Unit,Integration}/`, `phpunit.xml`.
+- `doomy/restopus` wired in via Nette's `RestRouterFactory` in `config/config.neon` (presenter namespace `App\Presenter`, mapped to `src/Presenter`).
+- `App\Presenter\HealthPresenter` added (`GET /api/health` → `{"status":"ok"}`) purely as an infrastructure smoke-test endpoint — first real feature presenter is still Phase 2 work.
+- `docker/php/Dockerfile` (PHP 8.4-fpm, composer, intl/opcache/zip extensions) + `docker/php/php.ini` (upload size aligned to `MAX_FILE_SIZE`, opcache on).
+- `docker/nginx/default.conf` — front-controller style, proxies `*.php` to the `backend` service on 9000.
+- Root `docker-compose.yml` — `backend` (php-fpm) + `nginx` services only, port from `BACKEND_PORT` (default 8080). **No `frontend` service yet** — that directory doesn't exist yet, so it's intentionally left out until Phase 1.3 happens.
+- Verified end-to-end: `docker compose up --build` → `curl http://localhost:8080/api/health` → `200 {"status":"ok"}`, request flowing nginx → php-fpm → Nette DI → Restopus presenter dispatch.
+
+**Non-obvious decisions/gotchas for whoever continues this:**
+- `doomy/restopus` is **not on Packagist** — `backend/composer.json` adds it as a `"repositories": [{"type": "vcs", "url": "https://github.com/doomy/restopus", "no-api": true}]` entry. The `no-api: true` flag matters: without it, Composer uses the GitHub REST API to resolve tags and hits unauthenticated rate limits quickly (fails with "Could not authenticate against github.com"). `no-api: true` forces a plain `git` clone instead.
+- `doomy/security` (a transitive dep of restopus, pulled in for `DummyAuthenticator`) pins `firebase/php-jwt: ^6.10`, which trips Composer 2.9's new install-time security audit (`PKSA-y2cr-5h3j-g3ys`, low severity, no fix currently available in the `^6.10` range). Ignored explicitly in `backend/composer.json` → `config.audit.ignore` with a comment explaining why. Worth revisiting if/when `doomy/security` bumps its constraint.
+- `backend/composer.lock` is `.gitignore`d (pre-existing repo convention, inherited from `doomy/restopus` being a library-style template) — meaning `composer install` will re-resolve versions on every fresh clone/build rather than being pinned. Flagging this as a possible follow-up since it's unusual for an application (vs. a library) not to commit its lockfile.
+- Root `.env` is required for `docker-compose up` (`env_file: .env` on the `backend` service) — copy it from `.env.example` before starting the stack, as the README already instructs.
+
+**Still open from Phase 1:**
+- 1.1 Monorepo structure, README, WARP.md — done (pre-existing).
+- 1.2 Backend Setup — DI/router wiring done; no real Presenters/Services/Models beyond the health check yet (Phase 2).
+- 1.3 Frontend Setup — not started; no `frontend/` directory exists.
+- 1.4 Docker Configuration — backend + nginx done; `docker/node/` Dockerfile and a combined nginx config that also proxies the frontend are still pending until 1.3 lands.
+- 1.5 Environment Configuration — root `.env.example` already existed; per-service `backend/.env.example` / `frontend/.env.example` not yet split out.
+
+---
+
 *This plan is flexible and can be adjusted based on specific requirements or constraints discovered during development.*

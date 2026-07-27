@@ -233,4 +233,4 @@ For issues or questions, please [open an issue](link-to-issues) in the repositor
 
 ---
 
-**Status:** 🚧 In Development - Phase 1: Project Setup & Infrastructure
+**Status:** 🚧 In Development - Phase 1: Project Setup & Infrastructure (backend Docker stack scaffolded and verified — see [Progress Log](plan.MD#progress-log))

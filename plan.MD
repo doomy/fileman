@@ -76,7 +76,7 @@ A micro-web application for managing uploaded files in a specified location, sim
 
 ## Development Phases
 
-### Phase 1: Project Setup & Infrastructure (Week 1)
+### Phase 1: Project Setup & Backend Infrastructure (Week 1)
 
 **1.1 Initialize Monorepo Structure**
 - Initialize single Git repository for the project
@@ -108,42 +108,22 @@ A micro-web application for managing uploaded files in a specified location, sim
   └── composer.json
   ```
 
-**1.3 Frontend Setup**
-- Initialize React project with Vite + TypeScript
-- Install core dependencies (React Query, Axios, Router)
-- Set up TailwindCSS or Material-UI
-- Create directory structure:
-  ```
-  frontend/
-  ├── src/
-  │   ├── components/
-  │   ├── pages/
-  │   ├── services/
-  │   ├── hooks/
-  │   ├── types/
-  │   ├── utils/
-  │   └── App.tsx
-  ├── public/
-  ├── tests/
-  └── package.json
-  ```
-
-**1.4 Docker Configuration (Monorepo)**
+**1.3 Backend Docker Configuration**
 - Create Dockerfile for PHP 8.4 backend in docker/php/
-- Create Dockerfile for frontend in docker/node/
-- Create root docker-compose.yml orchestrating both services
-- Configure Nginx as reverse proxy for both backend API and frontend
+- Create root docker-compose.yml with the backend + nginx services
+- Configure Nginx as the front controller for the backend API
 - Set up volume mappings for hot-reload during development
+- Note: the frontend service is added later in 3.2, once frontend/ exists
 
-**1.5 Environment Configuration**
+**1.4 Environment Configuration**
 - Create root .env.example with all environment variables
-- Optionally create backend/.env.example and frontend/.env.example for service-specific vars
+- Optionally create backend/.env.example for backend-specific vars (frontend/.env.example follows in 3.1)
 - Document all required environment variables in README
-- Set up configuration loaders in both services
+- Set up the configuration loader in the backend
 
 ---
 
-### Phase 2: Backend API Development (Week 2-3)
+### Phase 2: Backend API Development (Week 1-3)
 
 **2.1 Core API Structure**
 - Define RESTful API endpoints using Restopus attributes (#[Route], #[HttpMethod])
@@ -197,15 +177,41 @@ A micro-web application for managing uploaded files in a specified location, sim
 
 ---
 
-### Phase 3: Frontend Development (Week 3-4)
+### Phase 3: Frontend Setup & Development (Week 3-5)
 
-**3.1 API Client Layer**
+**3.1 Frontend Setup**
+- Initialize React project with Vite + TypeScript
+- Install core dependencies (React Query, Axios, Router)
+- Set up TailwindCSS or Material-UI
+- Create directory structure:
+  ```
+  frontend/
+  ├── src/
+  │   ├── components/
+  │   ├── pages/
+  │   ├── services/
+  │   ├── hooks/
+  │   ├── types/
+  │   ├── utils/
+  │   └── App.tsx
+  ├── public/
+  ├── tests/
+  └── package.json
+  ```
+
+**3.2 Frontend Docker Configuration**
+- Create Dockerfile for the frontend in docker/node/
+- Add the frontend service to docker-compose.yml alongside backend + nginx
+- Extend the Nginx config to proxy the frontend as well as the backend API
+- Set up volume mappings for hot-reload during development
+
+**3.3 API Client Layer**
 - Create Axios instance with interceptors
 - Define TypeScript interfaces for API responses
 - Implement API service functions
 - Add error handling and retry logic
 
-**3.2 State Management Setup**
+**3.4 State Management Setup**
 - Configure React Query
 - Create custom hooks for API calls:
   - `useFiles(path)`
@@ -213,7 +219,7 @@ A micro-web application for managing uploaded files in a specified location, sim
   - `useUpload()`
   - `useFileOperations()`
 
-**3.3 Core Components**
+**3.5 Core Components**
 - FileList component (list view)
 - FileGrid component (grid/thumbnail view)
 - FileItem component
@@ -223,7 +229,7 @@ A micro-web application for managing uploaded files in a specified location, sim
 - SearchBar component
 - FilterPanel component
 
-**3.4 File Operations UI**
+**3.6 File Operations UI**
 - Context menu for file actions
 - Drag-and-drop upload interface
 - Progress indicators for uploads
@@ -231,12 +237,12 @@ A micro-web application for managing uploaded files in a specified location, sim
 - Rename inline editing
 - Multi-select functionality
 
-**3.5 Main Pages**
+**3.7 Main Pages**
 - FileManager page (main interface)
 - Login page (if authentication required)
 - Settings page (configuration options)
 
-**3.6 User Experience Features**
+**3.8 User Experience Features**
 - Loading states and skeletons
 - Error boundaries and error messages
 - Toast notifications for operations
@@ -244,7 +250,7 @@ A micro-web application for managing uploaded files in a specified location, sim
 - Responsive design for mobile/tablet
 - Accessibility (ARIA labels, keyboard navigation)
 
-**3.7 Testing**
+**3.9 Testing**
 - Component unit tests (Vitest/Jest + Testing Library)
 - Integration tests for user flows
 - E2E tests for critical paths (optional: Playwright/Cypress)
@@ -499,9 +505,9 @@ After approval of this plan:
 
 ## Estimated Timeline
 
-- **Phase 1:** 5-7 days
+- **Phase 1:** 3-4 days (frontend scaffolding moved to Phase 3)
 - **Phase 2:** 10-14 days
-- **Phase 3:** 10-14 days
+- **Phase 3:** 12-16 days (now includes frontend + Docker scaffolding)
 - **Phase 4:** 7-10 days
 - **Phase 5:** 5-7 days
 
@@ -513,16 +519,34 @@ After approval of this plan:
 
 > Kept up to date as work lands, so future sessions (human or AI) know what already exists before re-deriving it. Newest entry on top.
 
+### 2026-08-27 — Phases renumbered: backend-first sequencing
+
+No code changed; this was a reordering of the plan itself. Decision: build the backend API to a working state before any frontend exists, since the frontend has nothing to talk to until Phase 2 lands and the security-critical path-resolution work is best settled before code accumulates around it.
+
+What moved:
+- **Old 1.3 Frontend Setup** → **3.1**, immediately ahead of the frontend work that depends on it.
+- **Old 1.4 Docker Configuration (Monorepo)** split in two: the backend/nginx half became **1.3 Backend Docker Configuration** (already done), the `docker/node/` Dockerfile + combined nginx proxy became **3.2 Frontend Docker Configuration**.
+- **Old 1.5 Environment Configuration** → **1.4**, with `frontend/.env.example` reassigned to 3.1.
+- **Old 3.1–3.7** shifted to **3.3–3.9** to make room; their contents are unchanged.
+- Phase 1 retitled "Project Setup & Backend Infrastructure"; Phase 3 retitled "Frontend Setup & Development".
+- Week labels and the Estimated Timeline adjusted: Phase 1 shrinks to 3-4 days, Phase 3 grows to 12-16 days. Total is still 5-6 weeks.
+
+Phases 2, 4, and 5 are untouched — no step in them referenced a moved number.
+
+**Consequence to be aware of:** Phase 1 is now *complete* except for the optional `backend/.env.example` split in 1.4. The next actionable work is **2.2 File System Service Layer** (`FileSystemService` + `PathValidator`), then 2.3 endpoints. 2.1 is partly done already — the Restopus router factory is wired and `AbstractRestPresenter` is in use by `HealthPresenter`; CORS and error handling are the remaining pieces.
+
+---
+
 ### 2026-07-27 — Backend Docker stack scaffolded and verified working
 
-Completed out of **Phase 1.2 (Backend Setup)** and **Phase 1.4 (Docker Configuration)**:
+Completed out of **Phase 1.2 (Backend Setup)** and **Phase 1.3 (Backend Docker Configuration)** — step numbers below reflect the 2026-08-27 renumbering:
 
 - `backend/` skeleton created: `composer.json`, `config/config.neon`, `www/index.php`, `src/Presenter/`, `storage/uploads/`, `storage/logs/`, `tests/{Unit,Integration}/`, `phpunit.xml`.
 - `doomy/restopus` wired in via Nette's `RestRouterFactory` in `config/config.neon` (presenter namespace `App\Presenter`, mapped to `src/Presenter`).
 - `App\Presenter\HealthPresenter` added (`GET /api/health` → `{"status":"ok"}`) purely as an infrastructure smoke-test endpoint — first real feature presenter is still Phase 2 work.
 - `docker/php/Dockerfile` (PHP 8.4-fpm, composer, intl/opcache/zip extensions) + `docker/php/php.ini` (upload size aligned to `MAX_FILE_SIZE`, opcache on).
 - `docker/nginx/default.conf` — front-controller style, proxies `*.php` to the `backend` service on 9000.
-- Root `docker-compose.yml` — `backend` (php-fpm) + `nginx` services only, port from `BACKEND_PORT` (default 8080). **No `frontend` service yet** — that directory doesn't exist yet, so it's intentionally left out until Phase 1.3 happens.
+- Root `docker-compose.yml` — `backend` (php-fpm) + `nginx` services only, port from `BACKEND_PORT` (default 8080). **No `frontend` service yet** — that directory doesn't exist yet, so it's intentionally left out until Phase 3.1/3.2 happens.
 - Verified end-to-end: `docker compose up --build` → `curl http://localhost:8080/api/health` → `200 {"status":"ok"}`, request flowing nginx → php-fpm → Nette DI → Restopus presenter dispatch.
 
 **Non-obvious decisions/gotchas for whoever continues this:**
@@ -531,12 +555,11 @@ Completed out of **Phase 1.2 (Backend Setup)** and **Phase 1.4 (Docker Configura
 - `backend/composer.lock` is `.gitignore`d (pre-existing repo convention, inherited from `doomy/restopus` being a library-style template) — meaning `composer install` will re-resolve versions on every fresh clone/build rather than being pinned. Flagging this as a possible follow-up since it's unusual for an application (vs. a library) not to commit its lockfile.
 - Root `.env` is required for `docker-compose up` (`env_file: .env` on the `backend` service) — copy it from `.env.example` before starting the stack, as the README already instructs.
 
-**Still open from Phase 1:**
+**Still open from Phase 1** (post-renumbering):
 - 1.1 Monorepo structure, README, WARP.md — done (pre-existing).
 - 1.2 Backend Setup — DI/router wiring done; no real Presenters/Services/Models beyond the health check yet (Phase 2).
-- 1.3 Frontend Setup — not started; no `frontend/` directory exists.
-- 1.4 Docker Configuration — backend + nginx done; `docker/node/` Dockerfile and a combined nginx config that also proxies the frontend are still pending until 1.3 lands.
-- 1.5 Environment Configuration — root `.env.example` already existed; per-service `backend/.env.example` / `frontend/.env.example` not yet split out.
+- 1.3 Backend Docker Configuration — done (backend + nginx). The `docker/node/` Dockerfile and combined nginx proxy config moved to 3.2.
+- 1.4 Environment Configuration — root `.env.example` already existed; `backend/.env.example` not yet split out (`frontend/.env.example` now belongs to 3.1).
 
 ---
 

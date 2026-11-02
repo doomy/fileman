@@ -31,7 +31,7 @@ logs/
 
 # Backend (PHP)
 backend/vendor/
-backend/composer.lock
+#backend/composer.lock
 backend/temp/
 backend/storage/uploads/*
 !backend/storage/uploads/.gitkeep
